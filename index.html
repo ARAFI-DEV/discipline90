@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Discipline 90 — Daily Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+
+  <div class="bg-grid"></div>
+  <div class="bg-glow"></div>
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <span class="logo-icon">◈</span>
+        <span class="logo-text">DISCIPLINE<span class="logo-accent">90</span></span>
+      </div>
+      <div class="header-meta">
+        <span id="current-date-display" class="date-display"></span>
+        <button class="reset-btn" id="reset-btn" title="Reset all data">↺ RESET</button>
+      </div>
+    </div>
+  </header>
+
+  <!-- NAV TABS -->
+  <nav class="tab-nav">
+    <div class="tab-nav-inner">
+      <button class="tab-btn active" data-tab="dashboard">📊 DASHBOARD</button>
+      <button class="tab-btn" data-tab="today">📋 TODAY</button>
+      <button class="tab-btn" data-tab="workout">🥊 WORKOUT</button>
+      <button class="tab-btn" data-tab="nutrition">🥩 NUTRITION</button>
+      <button class="tab-btn" data-tab="timer">⏱ TIMER</button>
+      <button class="tab-btn" data-tab="progress">📈 PROGRESS</button>
+    </div>
+  </nav>
+
+  <main class="main-container">
+
+    <!-- ══════ TAB: DASHBOARD ══════ -->
+    <div class="tab-content active" id="tab-dashboard">
+
+      <div class="rest-day-banner" id="rest-day-banner" style="display:none">
+        <span class="rest-icon">😴</span>
+        <div>
+          <div class="rest-title">REST DAY — FRIDAY</div>
+          <div class="rest-sub">วันนี้พัก ฟื้นฟูร่างกาย ดื่มน้ำ นอนให้พอ แค่นั้นพอ</div>
+        </div>
+      </div>
+
+      <section class="mission-section">
+
+        <div class="mission-card ring-card">
+          <div class="ring-wrapper">
+            <svg class="progress-ring" viewBox="0 0 140 140">
+              <circle class="ring-track" cx="70" cy="70" r="58"/>
+              <circle class="ring-fill" id="ring-fill" cx="70" cy="70" r="58"/>
+            </svg>
+            <div class="ring-inner">
+              <div class="ring-day-label">DAY</div>
+              <div class="ring-day-num" id="day-counter">1</div>
+              <div class="ring-total">/ 90</div>
+            </div>
+          </div>
+          <div class="ring-pct" id="ring-pct">0% COMPLETE</div>
+          <div class="phase-badge" id="phase-badge">PHASE 1</div>
+        </div>
+
+        <div class="mission-card streak-card">
+          <div class="streak-icon">🔥</div>
+          <div class="streak-num" id="streak-counter">0</div>
+          <div class="streak-label">DAY STREAK</div>
+          <div class="streak-sub" id="streak-sub">เริ่มวันแรกได้เลย!</div>
+          <div class="goggins-quote" id="goggins-quote">"You don't negotiate with your mind."</div>
+        </div>
+
+        <div class="mission-card weight-card">
+          <div class="weight-row">
+            <div class="weight-block">
+              <div class="weight-label">ปัจจุบัน</div>
+              <div class="weight-val" id="current-weight-display">—</div>
+              <div class="weight-unit">kg</div>
+            </div>
+            <div class="weight-arrow-col">
+              <div class="weight-lost" id="weight-lost">—</div>
+              <div class="weight-lost-label">kg ลดไป</div>
+              <div class="weight-arrow">→</div>
+            </div>
+            <div class="weight-block goal-block">
+              <div class="weight-label">เป้าหมาย</div>
+              <div class="weight-val accent">74</div>
+              <div class="weight-unit">kg</div>
+            </div>
+          </div>
+          <div class="weight-delta-bar">
+            <div class="weight-delta-fill" id="weight-delta-fill"></div>
+          </div>
+          <div class="weight-delta-text" id="weight-delta-text">บันทึกน้ำหนักเพื่อเริ่มต้น</div>
+          <div class="weigh-day-reminder">⚖️ ชั่งน้ำหนักทุกวันอาทิตย์ตอนตื่นนอน</div>
+        </div>
+
+      </section>
+
+      <!-- TODAY STATUS CARD -->
+      <section class="today-status-card" id="today-status-card">
+        <div class="tsc-left">
+          <div class="tsc-title" id="tsc-title">วันนี้ยังขาดอะไร?</div>
+          <div class="tsc-missing" id="tsc-missing"></div>
+        </div>
+        <div class="tsc-right">
+          <div class="tsc-taunt" id="tsc-taunt"></div>
+        </div>
+      </section>
+
+      <!-- Weekly Overview -->
+      <section class="card-section">
+        <div class="section-header">
+          <h2 class="section-title">สัปดาห์นี้</h2>
+          <div class="week-score" id="week-score">0 / 6 วัน</div>
+        </div>
+        <div class="week-grid" id="week-grid"></div>
+      </section>
+
+      <!-- Phase Timeline -->
+      <section class="card-section">
+        <div class="section-header">
+          <h2 class="section-title">TIMELINE 12 สัปดาห์</h2>
+        </div>
+        <div class="phase-timeline">
+          <div class="phase-item" id="phase-item-1">
+            <div class="phase-dot"></div>
+            <div class="phase-info">
+              <div class="phase-name">PHASE 1</div>
+              <div class="phase-weeks">Week 1–4</div>
+              <div class="phase-desc">ร่างกายปรับตัว • คาดลด 4–6 kg</div>
+              <div class="phase-target">89 → 83 kg</div>
+            </div>
+          </div>
+          <div class="phase-connector"></div>
+          <div class="phase-item" id="phase-item-2">
+            <div class="phase-dot"></div>
+            <div class="phase-info">
+              <div class="phase-name">PHASE 2</div>
+              <div class="phase-weeks">Week 5–8</div>
+              <div class="phase-desc">Fat burn สูงสุด • คาดลด 4–5 kg</div>
+              <div class="phase-target">83 → 78 kg</div>
+            </div>
+          </div>
+          <div class="phase-connector"></div>
+          <div class="phase-item" id="phase-item-3">
+            <div class="phase-dot"></div>
+            <div class="phase-info">
+              <div class="phase-name">PHASE 3</div>
+              <div class="phase-weeks">Week 9–12</div>
+              <div class="phase-desc">Lean out • คาดลด 3–4 kg</div>
+              <div class="phase-target">78 → 74 kg</div>
+            </div>
+          </div>
+        </div>
+        <div class="milestone-row">
+          <div class="milestone" data-kg="80">
+            <div class="milestone-kg">80 kg</div>
+            <div class="milestone-reward">แก้มเริ่มยุบ 😊</div>
+          </div>
+          <div class="milestone" data-kg="76">
+            <div class="milestone-kg">76 kg</div>
+            <div class="milestone-reward">กรามเริ่มชัด 😎</div>
+          </div>
+          <div class="milestone" data-kg="73">
+            <div class="milestone-kg">73 kg</div>
+            <div class="milestone-reward">หน้าเริ่มคม 🔥</div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <!-- ══════ TAB: TODAY ══════ -->
+    <div class="tab-content" id="tab-today">
+
+      <div class="today-header">
+        <div class="today-date-big" id="today-date-big"></div>
+        <div class="today-day-info" id="today-day-info"></div>
+      </div>
+
+      <!-- Rest Day -->
+      <div id="rest-day-view" style="display:none">
+        <div class="rest-card">
+          <div class="rest-big-icon">😴</div>
+          <h2 class="rest-big-title">REST DAY — FRIDAY</h2>
+          <p class="rest-big-sub">วันศุกร์คือวันพักผ่อน ไม่ต้องซ้อม ไม่ต้องกดดัน<br>แต่ยังต้องดูแลตัวเองอยู่</p>
+          <div class="rest-tasks">
+            <div class="rest-task">💧 ดื่มน้ำ 3 ลิตร</div>
+            <div class="rest-task">🌙 นอน 7+ ชั่วโมง</div>
+            <div class="rest-task">🧘 Stretch / เดินเบาๆ ถ้าอยาก</div>
+            <div class="rest-task">🥩 กินโปรตีนให้ครบ 140g+</div>
+            <div class="rest-task">🚫 ไม่กินของต้องห้าม</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Normal Day -->
+      <div id="normal-day-view">
+
+        <div class="card-section">
+          <h3 class="subsection-title">📅 ตารางวันนี้</h3>
+          <div class="schedule-list" id="schedule-list"></div>
+        </div>
+
+        <div class="card-section" style="margin-top:20px">
+          <div class="section-header">
+            <h3 class="subsection-title">✅ DAILY CHECKLIST</h3>
+            <div class="checklist-progress" id="checklist-progress">0 / 6</div>
+          </div>
+          <div class="checklist-grid">
+
+            <label class="habit-item" data-habit="workout">
+              <input type="checkbox" class="habit-cb" id="cb-workout" />
+              <div class="habit-card">
+                <div class="habit-icon">⚡</div>
+                <div class="habit-info">
+                  <div class="habit-name">Workout Done</div>
+                  <div class="habit-desc" id="habit-workout-desc">ซ้อม 60 นาที</div>
+                </div>
+                <div class="habit-check">✓</div>
+              </div>
+            </label>
+
+            <label class="habit-item" data-habit="protein">
+              <input type="checkbox" class="habit-cb" id="cb-protein" />
+              <div class="habit-card">
+                <div class="habit-icon">🥩</div>
+                <div class="habit-info">
+                  <div class="habit-name">Protein 140–160g</div>
+                  <div class="habit-desc">ไก่ 500g + shake + ไข่ 3 ฟอง</div>
+                </div>
+                <div class="habit-check">✓</div>
+              </div>
+            </label>
+
+            <label class="habit-item" data-habit="sugarFree">
+              <input type="checkbox" class="habit-cb" id="cb-sugar" />
+              <div class="habit-card">
+                <div class="habit-icon">🚫</div>
+                <div class="habit-info">
+                  <div class="habit-name">ไม่กินของต้องห้าม</div>
+                  <div class="habit-desc">ไม่หวาน ไม่ทอด ไม่เบียร์</div>
+                </div>
+                <div class="habit-check">✓</div>
+              </div>
+            </label>
+
+            <label class="habit-item" data-habit="water">
+              <input type="checkbox" class="habit-cb" id="cb-water" />
+              <div class="habit-card">
+                <div class="habit-icon">💧</div>
+                <div class="habit-info">
+                  <div class="habit-name">น้ำ 3 ลิตร</div>
+                  <div class="habit-desc">ดื่มน้ำให้ครบทั้งวัน</div>
+                </div>
+                <div class="habit-check">✓</div>
+              </div>
+            </label>
+
+            <label class="habit-item" data-habit="sleep">
+              <input type="checkbox" class="habit-cb" id="cb-sleep" />
+              <div class="habit-card">
+                <div class="habit-icon">🌙</div>
+                <div class="habit-info">
+                  <div class="habit-name">นอน 7+ ชั่วโมง</div>
+                  <div class="habit-desc">นอน 22:00 ตื่น 05:00</div>
+                </div>
+                <div class="habit-check">✓</div>
+              </div>
+            </label>
+
+            <label class="habit-item" data-habit="learning">
+              <input type="checkbox" class="habit-cb" id="cb-learning" />
+              <div class="habit-card">
+                <div class="habit-icon">💻</div>
+                <div class="habit-info">
+                  <div class="habit-name">เรียน/โค้ด 7.5h</div>
+                  <div class="habit-desc">3 sessions รวม 7.5 ชั่วโมง</div>
+                </div>
+                <div class="habit-check">✓</div>
+              </div>
+            </label>
+
+          </div>
+          <div class="checklist-footer">
+            <div class="all-done-msg" id="all-done-msg">
+              <span class="all-done-icon">🏆</span>
+              <span>PERFECT DAY — STREAK LOCKED IN!</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="card-section" style="margin-top:20px">
+          <h3 class="subsection-title">📝 บันทึกวันนี้</h3>
+          <textarea class="notes-input" id="daily-notes" placeholder="จดอะไรก็ได้ เช่น รู้สึกยังไง กินอะไร ซ้อมได้กี่ rounds..."></textarea>
+          <button class="log-btn" id="save-notes-btn" style="margin-top:10px">บันทึก</button>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- ══════ TAB: WORKOUT ══════ -->
+    <div class="tab-content" id="tab-workout">
+
+      <div class="section-header">
+        <h2 class="section-title">WORKOUT PLAN</h2>
+        <div class="current-phase-tag" id="workout-phase-tag">PHASE 1 • Week 1–4</div>
+      </div>
+
+      <div class="phase-tabs">
+        <button class="phase-tab active" data-phase="1">Phase 1<br><span>Week 1–4</span></button>
+        <button class="phase-tab" data-phase="2">Phase 2<br><span>Week 5–8</span></button>
+        <button class="phase-tab" data-phase="3">Phase 3<br><span>Week 9–12</span></button>
+      </div>
+
+      <!-- Phase 1 -->
+      <div class="phase-detail active" id="phase-detail-1">
+        <div class="phase-overview-card">
+          <div class="po-title">Phase 1: ร่างกายปรับตัว</div>
+          <div class="po-goal">เป้า: 89 → 83 kg • ลด 6 kg</div>
+          <div class="po-desc">สร้างนิสัย ปรับร่างกายให้ชินกับการซ้อม ไม่ต้องหนักมาก แค่ทำให้ครบทุกวัน</div>
+        </div>
+        <div class="workout-block">
+          <div class="workout-block-title">🌅 05:10 — WARM UP</div>
+          <div class="exercise-row"><span>กระโดดเชือก</span><span class="ex-detail">10 นาที เบาๆ</span></div>
+        </div>
+        <div class="workout-block">
+          <div class="workout-block-title">🥊 HEAVY BAG — 6 Rounds</div>
+          <div class="exercise-row"><span>3 นาที / round</span><span class="ex-detail">พัก 1 นาที</span></div>
+          <div class="exercise-row"><span>รวมเวลา</span><span class="ex-detail">~24 นาที</span></div>
+          <div class="combo-list">
+            <div class="combo-item">Jab – Cross – Hook (1-2-3)</div>
+            <div class="combo-item">Jab – Cross – Body (1-2-body)</div>
+            <div class="combo-item">Double Jab – Cross (1-1-2)</div>
+          </div>
+        </div>
+        <div class="workout-block">
+          <div class="workout-block-title">💪 STRENGTH — 4 Sets × ดัมเบล 10kg</div>
+          <div class="exercise-row"><span>Dumbbell Squat</span><span class="ex-detail">12 reps × 4</span></div>
+          <div class="exercise-row"><span>Push Up</span><span class="ex-detail">12–15 reps × 4</span></div>
+          <div class="exercise-row"><span>Dumbbell Row</span><span class="ex-detail">12 reps × 4</span></div>
+          <div class="exercise-row"><span>Shoulder Press</span><span class="ex-detail">12 reps × 4</span></div>
+          <div class="exercise-row"><span>Plank</span><span class="ex-detail">60 วินาที × 4</span></div>
+          <div class="exercise-row rest-row"><span>พักระหว่าง set</span><span class="ex-detail">60 วินาที</span></div>
+        </div>
+        <div class="workout-block">
+          <div class="workout-block-title">🚶 16:30 — RECOVERY WALK</div>
+          <div class="exercise-row"><span>เดินเร็ว</span><span class="ex-detail">20 นาที</span></div>
+        </div>
+      </div>
+
+      <!-- Phase 2 -->
+      <div class="phase-detail" id="phase-detail-2">
+        <div class="phase-overview-card">
+          <div class="po-title">Phase 2: Fat Burn สูงสุด</div>
+          <div class="po-goal">เป้า: 83 → 78 kg • ลด 5 kg</div>
+          <div class="po-desc">เพิ่ม rounds เป็น 8 เพิ่มความเข้มข้น เน้น combo ที่ซับซ้อนขึ้น</div>
+        </div>
+        <div class="workout-block">
+          <div class="workout-block-title">🌅 05:10 — WARM UP</div>
+          <div class="exercise-row"><span>กระโดดเชือก</span><span class="ex-detail">10 นาที + เพิ่มจังหวะ</span></div>
+        </div>
+        <div class="workout-block">
+          <div class="workout-block-title">🥊 HEAVY BAG — 8 Rounds</div>
+          <div class="exercise-row"><span>3 นาที / round</span><span class="ex-detail">พัก 1 นาที</span></div>
+          <div class="exercise-row"><span>รวมเวลา</span><span class="ex-detail">~32 นาที</span></div>
+          <div class="combo-list">
+            <div class="combo-item">Jab – Cross – Hook – Uppercut (1-2-3-4)</div>
+            <div class="combo-item">Body – Head – Hook</div>
+            <div class="combo-item">Slip – Counter Cross – Hook</div>
+            <div class="combo-item">Jab – Cross – Step Back – Jab (footwork)</div>
+          </div>
+        </div>
+        <div class="workout-block">
+          <div class="workout-block-title">💪 STRENGTH — 4 Sets (เพิ่ม reps)</div>
+          <div class="exercise-row"><span>Dumbbell Squat</span><span class="ex-detail">15 reps × 4</span></div>
+          <div class="exercise-row"><span>Push Up</span><span class="ex-detail">15–20 reps × 4</span></div>
+          <div class="exercise-row"><span>Dumbbell Row</span><span class="ex-detail">15 reps × 4</span></div>
+          <div class="exercise-row"><span>Shoulder Press</span><span class="ex-detail">15 reps × 4</span></div>
+          <div class="exercise-row"><span>Plank</span><span class="ex-detail">75 วินาที × 4</span></div>
+          <div class="exercise-row rest-row"><span>พักระหว่าง set</span><span class="ex-detail">45 วินาที</span></div>
+        </div>
+      </div>
+
+      <!-- Phase 3 -->
+      <div class="phase-detail" id="phase-detail-3">
+        <div class="phase-overview-card">
+          <div class="po-title">Phase 3: Lean Out</div>
+          <div class="po-goal">เป้า: 78 → 74 kg • ลด 4 kg</div>
+          <div class="po-desc">10–12 rounds เต็มๆ ซ้อมแบบนักมวยจริงๆ เน้นความเร็วและ conditioning</div>
+        </div>
+        <div class="workout-block">
+          <div class="workout-block-title">🌅 05:10 — WARM UP</div>
+          <div class="exercise-row"><span>กระโดดเชือก</span><span class="ex-detail">10 นาที + double under</span></div>
+        </div>
+        <div class="workout-block">
+          <div class="workout-block-title">🥊 HEAVY BAG — 10–12 Rounds</div>
+          <div class="exercise-row"><span>3 นาที / round</span><span class="ex-detail">พัก 1 นาที</span></div>
+          <div class="exercise-row"><span>รวมเวลา</span><span class="ex-detail">~40–48 นาที</span></div>
+          <div class="combo-list">
+            <div class="combo-item">Full combination rounds (6-punch combos)</div>
+            <div class="combo-item">Speed rounds — เร็วสุด 1 นาที</div>
+            <div class="combo-item">Power rounds — หนักสุด 1 นาที</div>
+            <div class="combo-item">Footwork + Jab rounds</div>
+          </div>
+        </div>
+        <div class="workout-block">
+          <div class="workout-block-title">💪 STRENGTH — 5 Sets</div>
+          <div class="exercise-row"><span>Dumbbell Squat</span><span class="ex-detail">15 reps × 5</span></div>
+          <div class="exercise-row"><span>Push Up (Diamond)</span><span class="ex-detail">15 reps × 5</span></div>
+          <div class="exercise-row"><span>Dumbbell Row</span><span class="ex-detail">15 reps × 5</span></div>
+          <div class="exercise-row"><span>Shoulder Press</span><span class="ex-detail">15 reps × 5</span></div>
+          <div class="exercise-row"><span>Plank</span><span class="ex-detail">90 วินาที × 5</span></div>
+          <div class="exercise-row rest-row"><span>พักระหว่าง set</span><span class="ex-detail">30 วินาที</span></div>
+        </div>
+      </div>
+
+      <div class="no-zero-card">
+        <div class="nz-title">⚡ SYSTEM กันหลุด</div>
+        <div class="nz-grid">
+          <div class="nz-item"><div class="nz-name">กฎ 2 นาที</div><div class="nz-desc">ขี้เกียจ → ทำแค่ 2 นาที เริ่มแล้วมักทำต่อ</div></div>
+          <div class="nz-item"><div class="nz-name">No Zero Day</div><div class="nz-desc">อย่างน้อย: กระโดดเชือก 5 นาที หรือ ต่อย 3 rounds</div></div>
+          <div class="nz-item"><div class="nz-name">Don't Miss Twice</div><div class="nz-desc">หลุด 1 วันได้ แต่ห้ามหลุด 2 วันติด</div></div>
+          <div class="nz-item"><div class="nz-name">Cheat Meal</div><div class="nz-desc">สัปดาห์ละ 1 มื้อ ไม่ใช่ 1 วัน</div></div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════ TAB: NUTRITION ══════ -->
+    <div class="tab-content" id="tab-nutrition">
+
+      <div class="section-header">
+        <h2 class="section-title">NUTRITION PLAN</h2>
+        <div class="protein-target-badge">เป้า: 140–160g โปรตีน/วัน</div>
+      </div>
+
+      <div class="protein-calc-card">
+        <div class="pc-title">🧮 คำนวณโปรตีนวันนี้</div>
+        <div class="protein-sources">
+          <div class="ps-row">
+            <div class="ps-food">🍗 อกไก่ / สันใน</div>
+            <div class="ps-input-wrap">
+              <input type="number" class="ps-input" id="ps-chicken" value="500" min="0" max="1000" step="50"/>
+              <span class="ps-unit">g</span>
+            </div>
+            <div class="ps-protein" id="pp-chicken">110g</div>
+          </div>
+          <div class="ps-row">
+            <div class="ps-food">🥚 ไข่ไก่</div>
+            <div class="ps-input-wrap">
+              <input type="number" class="ps-input" id="ps-eggs" value="3" min="0" max="10"/>
+              <span class="ps-unit">ฟอง</span>
+            </div>
+            <div class="ps-protein" id="pp-eggs">18g</div>
+          </div>
+          <div class="ps-row">
+            <div class="ps-food">🥤 Protein Shake</div>
+            <div class="ps-input-wrap">
+              <input type="number" class="ps-input" id="ps-shake" value="1" min="0" max="3"/>
+              <span class="ps-unit">scoop</span>
+            </div>
+            <div class="ps-protein" id="pp-shake">27g</div>
+          </div>
+          <div class="ps-row">
+            <div class="ps-food">🍶 โยเกิร์ต</div>
+            <div class="ps-input-wrap">
+              <input type="number" class="ps-input" id="ps-yogurt" value="0" min="0" max="500" step="100"/>
+              <span class="ps-unit">g</span>
+            </div>
+            <div class="ps-protein" id="pp-yogurt">0g</div>
+          </div>
+        </div>
+        <div class="protein-total-bar">
+          <div class="ptb-fill" id="ptb-fill"></div>
+        </div>
+        <div class="protein-total-display">
+          <span class="pt-num" id="pt-total">155</span>
+          <span class="pt-label">/ 150g เป้าหมาย</span>
+          <span class="pt-status" id="pt-status">✓</span>
+        </div>
+      </div>
+
+      <h3 class="subsection-title" style="margin-top:24px">🍽️ มื้ออาหาร</h3>
+      <div class="meal-grid">
+        <div class="meal-card">
+          <div class="meal-time">06:10</div>
+          <div class="meal-name">Post-Workout</div>
+          <div class="meal-items">
+            <div class="meal-item">🥤 Protein shake 1 scoop</div>
+          </div>
+          <div class="meal-protein">~27g โปรตีน</div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">07:00</div>
+          <div class="meal-name">เช้า</div>
+          <div class="meal-items">
+            <div class="meal-item">🥚 ไข่ 3 ฟอง</div>
+            <div class="meal-item">🍌 กล้วย หรือ แอปเปิ้ล</div>
+          </div>
+          <div class="meal-protein">~18g โปรตีน</div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">12:00</div>
+          <div class="meal-name">กลางวัน</div>
+          <div class="meal-items">
+            <div class="meal-item">🍗 อกไก่ 250g</div>
+            <div class="meal-item">🍚 ข้าว 1 ทัพพี</div>
+            <div class="meal-item">🥬 ผักเยอะๆ</div>
+          </div>
+          <div class="meal-protein">~55g โปรตีน</div>
+        </div>
+        <div class="meal-card">
+          <div class="meal-time">17:00</div>
+          <div class="meal-name">เย็น</div>
+          <div class="meal-items">
+            <div class="meal-item">🍗 อกไก่ 250g</div>
+            <div class="meal-item">🥬 ผักเยอะๆ</div>
+            <div class="meal-item">🍚 ข้าวเล็กน้อย (optional)</div>
+          </div>
+          <div class="meal-protein">~55g โปรตีน</div>
+        </div>
+      </div>
+
+      <div class="food-rules-grid">
+        <div class="food-rules-card avoid-card">
+          <div class="fr-title">🚫 ห้ามกิน</div>
+          <div class="fr-item">น้ำหวาน • ชานม • น้ำอัดลม</div>
+          <div class="fr-item">ของทอด • ขนมถุง</div>
+          <div class="fr-item">เบียร์ • แอลกอฮอล์</div>
+        </div>
+        <div class="food-rules-card allow-card">
+          <div class="fr-title">✅ กินได้</div>
+          <div class="fr-item">ผลไม้ทุกชนิด</div>
+          <div class="fr-item">โยเกิร์ต (plain)</div>
+          <div class="fr-item">กาแฟดำ (ไม่มีน้ำตาล)</div>
+          <div class="fr-item">น้ำเปล่า 3 ลิตร/วัน</div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- ══════ TAB: TIMER ══════ -->
+    <div class="tab-content" id="tab-timer">
+
+      <div class="section-header">
+        <h2 class="section-title">CARDIO TIMER</h2>
+        <div class="timer-protocol-badge">HEAVY BAG / JUMP ROPE</div>
+      </div>
+
+      <div class="timer-config">
+        <div class="config-group">
+          <label class="config-label">WORK (วินาที)</label>
+          <input type="number" class="config-input" id="cfg-work" value="180" min="60" max="300" />
+        </div>
+        <div class="config-group">
+          <label class="config-label">REST (วินาที)</label>
+          <input type="number" class="config-input" id="cfg-rest" value="60" min="30" max="120" />
+        </div>
+        <div class="config-group">
+          <label class="config-label">ROUNDS</label>
+          <input type="number" class="config-input" id="cfg-rounds" value="6" min="1" max="12" />
+        </div>
+      </div>
+
+      <div class="timer-presets">
+        <button class="preset-btn" data-work="180" data-rest="60" data-rounds="6">Phase 1<br><small>6 rounds</small></button>
+        <button class="preset-btn" data-work="180" data-rest="60" data-rounds="8">Phase 2<br><small>8 rounds</small></button>
+        <button class="preset-btn" data-work="180" data-rest="60" data-rounds="10">Phase 3<br><small>10 rounds</small></button>
+        <button class="preset-btn" data-work="60" data-rest="30" data-rounds="10">Jump Rope<br><small>10 sets</small></button>
+      </div>
+
+      <div class="timer-display">
+        <div class="timer-phase" id="timer-phase">READY</div>
+        <div class="timer-ring-wrapper">
+          <svg class="timer-ring" viewBox="0 0 200 200">
+            <circle class="timer-track" cx="100" cy="100" r="85"/>
+            <circle class="timer-progress" id="timer-progress" cx="100" cy="100" r="85"/>
+          </svg>
+          <div class="timer-inner">
+            <div class="timer-time" id="timer-time">03:00</div>
+            <div class="timer-round-info" id="timer-round-info">Round 1 / 6</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="timer-controls">
+        <button class="timer-btn" id="timer-start">▶ START</button>
+        <button class="timer-btn timer-btn-sec" id="timer-pause" disabled>⏸ PAUSE</button>
+        <button class="timer-btn timer-btn-sec" id="timer-reset">↺ RESET</button>
+      </div>
+
+      <div class="timer-session-summary" id="timer-summary" style="display:none">
+        <span class="summary-icon">✅</span>
+        <span id="summary-text"></span>
+      </div>
+
+    </div>
+
+    <!-- ══════ TAB: PROGRESS ══════ -->
+    <div class="tab-content" id="tab-progress">
+
+      <div class="section-header">
+        <h2 class="section-title">WEIGHT PROGRESS</h2>
+        <div class="weight-count" id="weight-count">0 entries</div>
+      </div>
+
+      <div class="weight-input-row">
+        <div class="input-group">
+          <label class="input-label">วันที่</label>
+          <input type="date" class="input-field" id="weight-date" />
+        </div>
+        <div class="input-group">
+          <label class="input-label">น้ำหนัก (kg)</label>
+          <input type="number" class="input-field" id="weight-input" placeholder="89.0" step="0.1" min="40" max="200" />
+        </div>
+        <button class="log-btn" id="log-weight-btn">บันทึก</button>
+      </div>
+
+      <div class="chart-wrapper">
+        <canvas id="weight-chart"></canvas>
+      </div>
+
+      <h3 class="subsection-title" style="margin-top:20px">น้ำหนักคาดการณ์ vs จริง</h3>
+      <div class="eva-grid" id="eva-grid"></div>
+
+      <div class="weight-log-list" id="weight-log-list" style="margin-top:20px"></div>
+
+    </div>
+
+  </main>
+
+  <div class="toast" id="toast"></div>
+
+  <div class="modal-overlay" id="modal-overlay">
+    <div class="modal">
+      <div class="modal-title">RESET ALL DATA?</div>
+      <div class="modal-body">จะลบข้อมูลทั้งหมด 90 วัน ไม่สามารถย้อนได้</div>
+      <div class="modal-actions">
+        <button class="modal-btn modal-cancel" id="modal-cancel">CANCEL</button>
+        <button class="modal-btn modal-confirm" id="modal-confirm">YES, RESET</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
